@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM de Matrículas · Habilis Sul</title>
+<link rel="icon" id="favicon" href="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap">
+<style>
+:root{
+  --amarelo:#FBB033; --magenta:#A4378C; --turquesa:#52A7B0; --grafite:#3B3B3B;
+  --bg:#FAF7F1; --surface:#FFFFFF; --line:#E8E1D4; --line2:#F1ECE2;
+  --text:#2B2B2B; --muted:#7B756B;
+  --verde:#2E9E5B; --vermelho:#D6453A; --cinza:#8E8A84;
+  --amarelo-bg:#FFF3DC; --magenta-bg:#F6E4F1; --turquesa-bg:#E1F2F3; --verde-bg:#E2F4E9; --vermelho-bg:#FBE4E1; --cinza-bg:#EEECE8;
+  --radius:10px; --shadow:0 1px 2px rgba(59,59,59,.06),0 4px 14px rgba(59,59,59,.06);
+  --font-d:"Nunito","Nunito Sans",system-ui,sans-serif; --font-b:"Nunito Sans","Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:14px;line-height:1.45}
+h1,h2,h3{font-family:var(--font-d);margin:0;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--turquesa)}
+.stripe{display:grid;grid-template-columns:1fr 1fr 1fr;height:6px}
+.stripe i:nth-child(1){background:var(--amarelo)}.stripe i:nth-child(2){background:var(--magenta)}.stripe i:nth-child(3){background:var(--turquesa)}
+
+/* ---------- login ---------- */
+#login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.card-login{width:min(420px,100%);background:var(--surface);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.card-login .stripe{height:8px}
+.card-login .body{padding:32px 32px 28px;display:grid;gap:14px}
+.card-login img{width:96px;justify-self:center;margin-bottom:4px}
+.card-login h1{font-size:22px;text-align:center;color:var(--grafite)}
+.card-login p.sub{margin:-6px 0 6px;text-align:center;color:var(--muted)}
+label.f{display:grid;gap:5px;font-weight:600;color:var(--grafite)}
+label.f span{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.inp{border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;width:100%}
+.inp:focus{outline:none;border-color:var(--turquesa);box-shadow:0 0 0 3px var(--turquesa-bg)}
+.btn{border:none;border-radius:8px;padding:10px 16px;font-weight:700;font-family:var(--font-d);background:var(--line2);color:var(--grafite);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{filter:brightness(.97)}
+.btn:focus-visible{outline:3px solid var(--turquesa-bg)}
+.btn.p{background:var(--amarelo);color:var(--grafite)}
+.btn.t{background:var(--turquesa);color:#fff}
+.btn.m{background:var(--magenta);color:#fff}
+.btn.g{background:transparent;border:1.5px solid var(--line)}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:7px}
+.btn.danger{background:var(--vermelho-bg);color:#9B2C22}
+.err{background:var(--vermelho-bg);color:#9B2C22;border-radius:8px;padding:8px 12px;font-weight:600}
+.hint{color:var(--muted);font-size:12px;text-align:center}
+
+/* ---------- app shell ---------- */
+#app{display:none;min-height:100vh}
+header.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top .in{max-width:1500px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.top img{height:48px;width:auto}
+.top .ttl h1{font-size:19px;color:var(--grafite);line-height:1.1}
+.top .ttl small{display:block;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:11px;margin-top:3px}
+.top .sp{flex:1}
+.user{display:flex;align-items:center;gap:10px}
+.user .who{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:999px;padding:6px 12px 6px 6px;font-weight:700;color:var(--grafite)}
+.user .who b{width:26px;height:26px;border-radius:50%;background:var(--magenta);color:#fff;display:grid;place-items:center;font-family:var(--font-d);font-size:12px}
+nav.tabs{max-width:1500px;margin:0 auto;padding:14px 24px 0;display:flex;gap:8px;flex-wrap:wrap}
+nav.tabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-family:var(--font-d);font-weight:800;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+nav.tabs button .n{background:var(--line2);border-radius:999px;padding:1px 8px;font-size:12px;color:var(--grafite);font-variant-numeric:tabular-nums}
+nav.tabs button.on{color:var(--grafite);border-color:var(--grafite)}
+nav.tabs button.on[data-tab=rem]{border-color:var(--turquesa);background:var(--turquesa-bg)}
+nav.tabs button.on[data-tab=novas]{border-color:var(--magenta);background:var(--magenta-bg)}
+nav.tabs button.on[data-tab=turmas]{border-color:var(--amarelo);background:var(--amarelo-bg)}
+nav.tabs button.on[data-tab=reneg]{border-color:var(--vermelho);background:var(--vermelho-bg)}
+main{max-width:1500px;margin:0 auto;padding:16px 24px 60px}
+section.tab{display:none}section.tab.on{display:block}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;border-left:5px solid var(--line)}
+.tile .v{font-family:var(--font-d);font-size:26px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--grafite)}
+.tile .l{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px}
+.tile.ok{border-left-color:var(--verde)}.tile.bad{border-left-color:var(--vermelho)}.tile.wait{border-left-color:var(--amarelo)}.tile.t{border-left-color:var(--turquesa)}.tile.m{border-left-color:var(--magenta)}.tile.g{border-left-color:var(--grafite)}
+
+/* toolbar */
+.bar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
+.bar label.f{min-width:150px}
+.bar label.f.grow{flex:1;min-width:200px}
+.bar .inp{padding:8px 10px}
+select.inp{appearance:auto}
+
+/* table */
+.tbl-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:auto;max-height:calc(100vh - 300px);box-shadow:var(--shadow)}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+th{position:sticky;top:0;z-index:2;background:var(--grafite);color:#fff;font-family:var(--font-d);font-weight:800;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;text-align:left;padding:10px 10px;white-space:nowrap}
+th.c,td.c{text-align:center}
+td{padding:6px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+tbody tr:hover td{background:#FCFAF6}
+tbody tr.hl td{background:var(--amarelo-bg);transition:background .4s}
+tr.grp td{background:var(--line2);font-family:var(--font-d);font-weight:800;color:var(--grafite);padding:6px 10px;position:sticky;top:37px;z-index:1}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.name{font-weight:700;color:var(--grafite);white-space:nowrap}
+td.muted,.muted{color:var(--muted);font-size:12px}
+td.dt{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12.5px}
+.cell{border:1px solid transparent;border-radius:6px;padding:5px 7px;background:transparent;width:100%;min-width:120px}
+.cell:hover{border-color:var(--line)}
+.cell:focus{outline:none;border-color:var(--turquesa);background:#fff;box-shadow:0 0 0 3px var(--turquesa-bg)}
+textarea.cell{min-width:220px;min-height:34px;resize:vertical;font-size:13px}
+input.cell[type=date],input.cell[type=datetime-local]{min-width:150px}
+input.cell[type=number]{min-width:100px;text-align:right}
+select.cell{min-width:120px;appearance:auto;background:#fff;border-color:var(--line)}
+.ck{width:20px;height:20px;cursor:pointer;vertical-align:middle}
+.ck.ok{accent-color:var(--verde)}.ck.bad{accent-color:var(--vermelho)}.ck.doc{accent-color:var(--turquesa)}.ck.ag{accent-color:var(--magenta)}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap;font-family:var(--font-d)}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-ok{background:var(--verde-bg);color:#1F7A44}.b-bad{background:var(--vermelho-bg);color:#9B2C22}.b-wait{background:var(--amarelo-bg);color:#8A5A00}
+.b-t{background:var(--turquesa-bg);color:#2C6F76}.b-m{background:var(--magenta-bg);color:#7A2566}.b-g{background:var(--cinza-bg);color:#5C5852}
+.bstack{display:flex;gap:4px;flex-wrap:wrap}
+/* status select colors */
+select.st{font-weight:700;font-family:var(--font-d);border-radius:999px;padding:5px 10px;border:1.5px solid}
+select.st.s-efetivada{background:var(--verde-bg);color:#1F7A44;border-color:var(--verde)}
+select.st.s-fechando{background:var(--turquesa-bg);color:#2C6F76;border-color:var(--turquesa)}
+select.st.s-analise{background:var(--amarelo-bg);color:#8A5A00;border-color:var(--amarelo)}
+select.st.s-interesse{background:var(--magenta-bg);color:#7A2566;border-color:var(--magenta)}
+select.st.s-desistente{background:var(--cinza-bg);color:#5C5852;border-color:var(--cinza)}
+select.st.r-pendente{background:var(--vermelho-bg);color:#9B2C22;border-color:var(--vermelho)}
+select.st.r-negociacao{background:var(--amarelo-bg);color:#8A5A00;border-color:var(--amarelo)}
+select.st.r-acordo{background:var(--turquesa-bg);color:#2C6F76;border-color:var(--turquesa)}
+select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--verde)}
+.sug{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap}
+.sug.warn{color:#9B2C22;font-weight:700}
+.heat{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle}
+.heat i{width:6px;height:10px;border-radius:2px;background:var(--line)}
+.heat i.on{background:var(--turquesa)}
+/* docs progress */
+.prog{display:inline-flex;gap:3px;align-items:center}
+.prog i{width:14px;height:8px;border-radius:2px;background:var(--line)}
+.prog i.on{background:var(--verde)}
+.prog b{font-size:11px;color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-weight:700;font-family:var(--font-d);color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+.chips button .n{font-size:11px;background:var(--line2);border-radius:999px;padding:0 7px;color:var(--grafite)}
+.chips button.on{border-color:var(--amarelo);background:var(--amarelo-bg);color:var(--grafite)}
+.empty{padding:36px;text-align:center;color:var(--muted)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(43,43,43,.45);display:none;place-items:center;z-index:50;padding:20px}
+.modal.on{display:grid}
+.modal .box{background:var(--surface);border-radius:14px;width:min(640px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;max-height:calc(100vh - 40px);overflow-y:auto}
+.modal .box .stripe{height:6px}
+.modal .box .body{padding:22px 24px;display:grid;gap:12px}
+.modal h2{font-size:18px;color:var(--grafite)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.row-end{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+/* toast */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--grafite);color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;font-family:var(--font-d)}
+#toast.on{opacity:1}#toast.err{background:var(--vermelho)}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;align-items:center}
+.legend span.l{font-size:12px;color:var(--muted);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="card-login">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <form class="body" id="loginForm" autocomplete="on">
+      <img class="logo" alt="Habilis Escola e Curso">
+      <h1>CRM de Matrículas</h1>
+      <p class="sub">Unidade Sul · Campanha 2027</p>
+      <label class="f"><span>Usuário</span><input class="inp" id="lu" name="username" autocomplete="username" placeholder="ex.: graca" required autofocus></label>
+      <label class="f"><span>Senha</span><input class="inp" id="lp" name="password" type="password" autocomplete="current-password" required></label>
+      <div class="err" id="lerr" hidden></div>
+      <button class="btn p" type="submit" id="lbtn" style="justify-content:center">Entrar</button>
+      <div class="hint">Acesso restrito à equipe da Habilis Sul.</div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header class="top">
+    <div class="in">
+      <img class="logo" alt="Habilis">
+      <div class="ttl"><h1>CRM de Matrículas</h1><small>Unidade Sul · Campanha 2027</small></div>
+      <div class="sp"></div>
+      <div class="user">
+        <span class="who"><b id="uini"></b><span id="uname"></span></span>
+        <button class="btn g sm" id="btnPwd">Trocar senha</button>
+        <button class="btn g sm" id="btnOut">Sair</button>
+      </div>
+    </div>
+    <div class="stripe"><i></i><i></i><i></i></div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="rem" class="on">Rematrículas <span class="n" id="n-rem">0</span></button>
+    <button data-tab="novas">Novas Matrículas <span class="n" id="n-novas">0</span></button>
+    <button data-tab="turmas">Turmas 2027 <span class="n" id="n-turmas">0</span></button>
+    <button data-tab="reneg">Renegociação <span class="n" id="n-reneg">0</span></button>
+  </nav>
+
+  <main>
+    <!-- ---------- REMATRÍCULAS ---------- -->
+    <section class="tab on" id="tab-rem">
+      <div class="tiles" id="rem-tiles"></div>
+      <div class="bar">
+        <label class="f grow"><span>Localizar aluno (lista atual 2026)</span><select class="inp" id="rem-jump"><option value="">Selecione um aluno…</option></select></label>
+        <label class="f"><span>Série 2026</span><select class="inp" id="rem-serie"><option value="">Todas</option></select></label>
+        <label class="f"><span>Situação</span><select class="inp" id="rem-sit"><option value="">Todas</option><option>Aguardando</option><option>Rematriculado</option><option>Inadimplente</option></select></label>
+        <label class="f grow"><span>Buscar</span><input class="inp" id="rem-q" placeholder="nome ou matrícula"></label>
+        <button class="btn g" id="rem-csv">Exportar CSV</button>
+      </div>
+      <div class="legend"><span class="l">Legenda:</span><span class="badge b-ok">Rematriculado</span><span class="badge b-bad">Inadimplente</span><span class="badge b-wait">Aguardando</span></div>
+      <div class="tbl-wrap"><table id="rem-tbl" data-table="crm_alunos_2026"><thead><tr>
+        <th>Matrícula</th><th>Aluno</th><th>Série 2026</th><th>Série 2027</th>
+        <th class="c">Rematriculado</th><th>Data / hora</th><th class="c">Inadimplente</th><th>Situação</th><th>Observação</th><th>Atualizado por</th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- ---------- NOVAS MATRÍCULAS ---------- -->
+    <section class="tab" id="tab-novas">
+      <div class="tiles" id="nv-tiles"></div>
+      <div class="bar">
+        <button class="btn m" id="nv-add">+ Novo contato</button>
+        <label class="f"><span>Andamento</span><select class="inp" id="nv-st"><option value="">Todos</option></select></label>
+        <label class="f"><span>Turma de interesse</span><select class="inp" id="nv-turma"><option value="">Todas</option></select></label>
+        <label class="f"><span>Atendente</span><select class="inp" id="nv-at"><option value="">Todos</option></select></label>
+        <label class="f grow"><span>Buscar</span><input class="inp" id="nv-q" placeholder="aluno, responsável ou contato"></label>
+        <button class="btn g" id="nv-csv">Exportar CSV</button>
+      </div>
+      <div class="legend"><span class="l">Escala:</span><span class="badge b-ok">Matrícula efetivada</span><span class="badge b-t">Fechando</span><span class="badge b-wait">Em análise</span><span class="badge b-m">Interesse</span><span class="badge b-g">Desistente</span></div>
+      <div class="tbl-wrap"><table id="nv-tbl" data-table="crm_leads"><thead><tr>
+        <th>Turma de interesse</th><th>Aluno</th><th>Responsável</th><th>Contato</th><th>1º contato</th>
+        <th class="c">Agendamento</th><th>Data do atendimento</th><th>Atendente</th>
+        <th class="c">Atendido</th><th class="c">Visitou a escola</th><th class="c">Proposta enviada</th><th>Histórico do atendimento</th><th>Próximo retorno</th>
+        <th>Avaliação</th><th class="c">Matrícula fechada</th><th></th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- ---------- TURMAS 2027 ---------- -->
+    <section class="tab" id="tab-turmas">
+      <div class="tiles" id="tm-tiles"></div>
+      <div class="chips" id="tm-chips"></div>
+      <div class="bar">
+        <label class="f"><span>Origem</span><select class="inp" id="tm-orig"><option value="">Todas</option><option>Rematrícula</option><option>Novato</option></select></label>
+        <label class="f"><span>Documentação</span><select class="inp" id="tm-doc"><option value="">Todas</option><option value="completa">Completa</option><option value="pendente">Pendente</option></select></label>
+        <label class="f grow"><span>Buscar</span><input class="inp" id="tm-q" placeholder="nome ou matrícula"></label>
+        <button class="btn g" id="tm-csv">Exportar CSV</button>
+      </div>
+      <div class="tbl-wrap"><table id="tm-tbl" data-table="crm_turmas_2027"><thead><tr>
+        <th>Série 2027</th><th>Aluno</th><th>Matrícula</th><th>Origem</th>
+        <th class="c">Contrato assinado</th><th class="c">Documentos pessoais</th><th class="c">Comprovante de residência</th><th class="c">Histórico escolar</th><th>Documentação</th><th>Observação</th><th>Atualizado por</th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- ---------- RENEGOCIAÇÃO ---------- -->
+    <section class="tab" id="tab-reneg">
+      <div class="tiles" id="rg-tiles"></div>
+      <div class="bar">
+        <label class="f"><span>Situação</span><select class="inp" id="rg-sit"><option value="">Todas</option><option>Pendente</option><option>Em negociação</option><option>Acordo firmado</option><option>Quitado</option></select></label>
+        <label class="f grow"><span>Buscar</span><input class="inp" id="rg-q" placeholder="nome ou matrícula"></label>
+        <button class="btn g" id="rg-csv">Exportar CSV</button>
+      </div>
+      <p class="muted" style="margin:0 0 10px">Alunos marcados como <b>inadimplentes</b> na aba Rematrículas entram aqui automaticamente para o financeiro.</p>
+      <div class="tbl-wrap"><table id="rg-tbl" data-table="crm_renegociacao"><thead><tr>
+        <th>Aluno</th><th>Matrícula</th><th>Série 2026</th><th>Inadimplente desde</th><th>Rematrícula</th><th>Situação</th><th>Valor devido (R$)</th><th>Proposta / acordo</th><th>Observação</th><th>Atualizado por</th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+  </main>
+</div>
+
+<!-- modal novo contato -->
+<div class="modal" id="mLead">
+  <form class="box" id="leadForm">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="body">
+      <h2>Novo contato — Novas Matrículas 2027</h2>
+      <div class="grid2">
+        <label class="f"><span>Turma de interesse *</span><select class="inp" name="turma_interesse" required></select></label>
+        <label class="f"><span>Nome do aluno *</span><input class="inp" name="nome_aluno" required></label>
+        <label class="f"><span>Nome do responsável</span><input class="inp" name="nome_responsavel"></label>
+        <label class="f"><span>Contato do responsável</span><input class="inp" name="contato_responsavel" placeholder="(83) 9 9999-9999"></label>
+        <label class="f"><span>Data e hora do 1º contato *</span><input class="inp" name="primeiro_contato" type="datetime-local" required></label>
+        <label class="f"><span>Responsável pelo atendimento</span><select class="inp" name="atendente"><option value="">—</option></select></label>
+        <label class="f"><span>Agendou atendimento?</span><select class="inp" name="agendamento"><option value="false">Não</option><option value="true">Sim</option></select></label>
+        <label class="f"><span>Data do atendimento</span><input class="inp" name="data_agendamento" type="datetime-local"></label>
+      </div>
+      <label class="f"><span>Observações iniciais</span><textarea class="inp" name="historico" rows="2"></textarea></label>
+      <div class="row-end"><button type="button" class="btn g" id="leadCancel">Cancelar</button><button class="btn m" type="submit">Salvar contato</button></div>
+    </div>
+  </form>
+</div>
+
+<!-- modal senha -->
+<div class="modal" id="mPwd">
+  <form class="box" id="pwdForm">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="body">
+      <h2>Trocar minha senha</h2>
+      <label class="f"><span>Nova senha (mín. 6 caracteres)</span><input class="inp" name="p1" type="password" minlength="6" required autocomplete="new-password"></label>
+      <label class="f"><span>Repetir nova senha</span><input class="inp" name="p2" type="password" minlength="6" required autocomplete="new-password"></label>
+      <div class="err" id="perr" hidden></div>
+      <div class="row-end"><button type="button" class="btn g" id="pwdCancel">Cancelar</button><button class="btn t" type="submit">Salvar senha</button></div>
+    </div>
+  </form>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>if(!window.supabase){document.write('<script src="https://lnwkkomjfidfqqsxtznd.supabase.co/functions/v1/crm-matriculas-sul/supabase.js"><\/script>');}</script>
+<script>
+// ===================== CONFIGURAÇÃO =====================
+const LOGO = 'data:image/png;base64,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';
+document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO); document.getElementById('favicon').href=LOGO;
+const SB_URL = 'https://lnwkkomjfidfqqsxtznd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxud2trb21qZmlkZnFxc3h0em5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNDgwODcsImV4cCI6MjEwMDgyNDA4N30.pyIKIqe_VuJIjJ-eD_12ugAVygvALy21IA9f1GRwyso';
+const DOMINIO = '@habilissul.crm';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const SERIES = ['6º ano','7º ano','8º ano','9º ano','1ª série','2ª série','3ª série'];
+const SERIES_2026 = SERIES.slice(0,6);
+const STATUS = ['Matrícula efetivada','Fechando','Em análise','Interesse','Desistente'];
+const STATUS_CLS = {'Matrícula efetivada':'s-efetivada','Fechando':'s-fechando','Em análise':'s-analise','Interesse':'s-interesse','Desistente':'s-desistente'};
+const STATUS_BADGE = {'Matrícula efetivada':'b-ok','Fechando':'b-t','Em análise':'b-wait','Interesse':'b-m','Desistente':'b-g'};
+const ATEND = ['Graça','Plácido','Arthur'];
+const RENEG = ['Pendente','Em negociação','Acordo firmado','Quitado'];
+const RENEG_CLS = {'Pendente':'r-pendente','Em negociação':'r-negociacao','Acordo firmado':'r-acordo','Quitado':'r-quitado'};
+
+const S = { user:null, alunos:[], leads:[], turmas:[], reneg:[], tab:'rem', tmSerie:'', dirty:false };
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TZ = 'America/Fortaleza';
+const fmtDT = ts => ts ? new Date(ts).toLocaleString('pt-BR',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+const fmtD = d => d ? new Date(d+'T12:00:00').toLocaleDateString('pt-BR') : '';
+function toLocalInput(ts){ // ISO -> valor de <input type=datetime-local> no fuso da escola
+  if(!ts) return '';
+  const p = new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(ts));
+  const g = t=>p.find(x=>x.type===t).value;
+  return `${g('year')}-${g('month')}-${g('day')}T${g('hour')==='24'?'00':g('hour')}:${g('minute')}`;
+}
+function fromLocalInput(v){ return v ? new Date(v+':00-03:00').toISOString() : null; } // Fortaleza = UTC-3 (sem horário de verão)
+const serieIdx = s => SERIES.indexOf(s);
+const norm = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const daysSince = ts => Math.floor((Date.now()-new Date(ts).getTime())/86400000);
+
+let toastT; function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='on'+(err?' err':''); clearTimeout(toastT); toastT=setTimeout(()=>t.className='',err?4000:1600); }
+
+// ===================== LOGIN =====================
+$('#loginForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const u = $('#lu').value.trim().toLowerCase(), p = $('#lp').value;
+  const email = u.includes('@') ? u : u + DOMINIO;
+  $('#lbtn').disabled = true; $('#lerr').hidden = true;
+  const {data, error} = await sb.auth.signInWithPassword({email, password:p});
+  $('#lbtn').disabled = false;
+  if(error){ $('#lerr').textContent = 'Usuário ou senha incorretos.'; $('#lerr').hidden = false; return; }
+  enter(data.user);
+});
+$('#btnOut').addEventListener('click', async ()=>{ await sb.auth.signOut(); location.reload(); });
+
+function showLogin(){ $('#login').style.display='grid'; $('#app').style.display='none'; }
+function enter(user){
+  const meta = user.user_metadata||{};
+  const login = (user.email||'').split('@')[0];
+  S.user = { nome: meta.nome || (login.charAt(0).toUpperCase()+login.slice(1)), login, id:user.id };
+  $('#uname').textContent = S.user.nome; $('#uini').textContent = S.user.nome.charAt(0).toUpperCase();
+  $('#login').style.display='none'; $('#app').style.display='block';
+  buildStatic(); loadAll(); subscribe(); setInterval(loadAll, 60000);
+}
+(async function init(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(session) enter(session.user); else showLogin();
+  sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_OUT') showLogin(); });
+})();
+
+// trocar senha
+$('#btnPwd').addEventListener('click', ()=>{ $('#mPwd').classList.add('on'); $('#pwdForm').reset(); $('#perr').hidden=true; });
+$('#pwdCancel').addEventListener('click', ()=>$('#mPwd').classList.remove('on'));
+$('#pwdForm').addEventListener('submit', async e=>{
+  e.preventDefault(); const f=e.target;
+  if(f.p1.value!==f.p2.value){ $('#perr').textContent='As senhas não conferem.'; $('#perr').hidden=false; return; }
+  const {error} = await sb.auth.updateUser({password:f.p1.value});
+  if(error){ $('#perr').textContent='Não foi possível trocar: '+error.message; $('#perr').hidden=false; return; }
+  $('#mPwd').classList.remove('on'); toast('Senha alterada');
+});
+
+// ===================== DADOS =====================
+let loadT;
+function scheduleLoad(){ clearTimeout(loadT); loadT=setTimeout(loadAll, 250); }
+async function loadAll(){
+  const [a,l,t,r] = await Promise.all([
+    sb.from('crm_alunos_2026').select('*'),
+    sb.from('crm_leads').select('*'),
+    sb.from('crm_turmas_2027').select('*'),
+    sb.from('crm_renegociacao').select('*'),
+  ]);
+  const err = a.error||l.error||t.error||r.error;
+  if(err){ toast('Erro ao carregar: '+err.message, true); if(/JWT|token|expired/i.test(err.message)) showLogin(); return; }
+  const byNome = (x,y)=>x.nome.localeCompare(y.nome,'pt-BR');
+  S.alunos = a.data.sort((x,y)=>serieIdx(x.serie_2026)-serieIdx(y.serie_2026) || byNome(x,y));
+  S.leads = l.data.sort((x,y)=>new Date(y.primeiro_contato)-new Date(x.primeiro_contato));
+  S.turmas = t.data.sort((x,y)=>serieIdx(x.serie)-serieIdx(y.serie) || byNome(x,y));
+  S.reneg = r.data;
+  render();
+}
+function subscribe(){
+  sb.channel('crm-sul')
+    .on('postgres_changes',{event:'*',schema:'public',table:'crm_alunos_2026'},scheduleLoad)
+    .on('postgres_changes',{event:'*',schema:'public',table:'crm_leads'},scheduleLoad)
+    .on('postgres_changes',{event:'*',schema:'public',table:'crm_turmas_2027'},scheduleLoad)
+    .on('postgres_changes',{event:'*',schema:'public',table:'crm_renegociacao'},scheduleLoad)
+    .subscribe();
+}
+async function upd(table, key, id, patch){
+  patch.atualizado_por = S.user.nome;
+  const {error} = await sb.from(table).update(patch).eq(key, id);
+  if(error){ toast('Erro ao salvar: '+error.message, true); }
+  else toast('Salvo ✓');
+  scheduleLoad();
+}
+// evita re-render enquanto alguém digita numa célula
+function isEditing(){ const a=document.activeElement; return a && a.closest('main') && (a.tagName==='TEXTAREA' || (a.tagName==='INPUT' && !['checkbox'].includes(a.type))); }
+document.addEventListener('focusout', ()=>{ if(S.dirty){ S.dirty=false; setTimeout(render,50);} });
+
+// ===================== ESTRUTURA FIXA =====================
+function buildStatic(){
+  const opt=(arr,sel='')=>arr.map(s=>`<option ${s===sel?'selected':''}>${esc(s)}</option>`).join('');
+  $('#rem-serie').innerHTML = '<option value="">Todas</option>'+opt(SERIES_2026);
+  $('#nv-st').innerHTML = '<option value="">Todos</option>'+opt(STATUS);
+  $('#nv-turma').innerHTML = '<option value="">Todas</option>'+opt(SERIES);
+  $('#nv-at').innerHTML = '<option value="">Todos</option>'+opt(ATEND)+'<option value="__none">Sem atendente</option>';
+  $('#leadForm [name=turma_interesse]').innerHTML = '<option value="">Selecione…</option>'+opt(SERIES);
+  $('#leadForm [name=atendente]').innerHTML = '<option value="">—</option>'+opt(ATEND, ATEND.includes(S.user.nome)?S.user.nome:'');
+  $$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{ S.tab=b.dataset.tab; $$('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b)); $$('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+S.tab)); render(); }));
+  ['#rem-serie','#rem-sit','#rem-q','#nv-st','#nv-turma','#nv-at','#nv-q','#tm-orig','#tm-doc','#tm-q','#rg-sit','#rg-q'].forEach(s=>$(s).addEventListener('input',render));
+  $('#rem-jump').addEventListener('change', e=>{
+    const id=e.target.value; if(!id) return;
+    $('#rem-serie').value=''; $('#rem-sit').value=''; $('#rem-q').value=''; render();
+    const tr=$(`#rem-tbl tr[data-id="${id}"]`); if(tr){ tr.scrollIntoView({block:'center',behavior:'smooth'}); tr.classList.add('hl'); setTimeout(()=>tr.classList.remove('hl'),2500); }
+    e.target.value='';
+  });
+  // novo contato
+  $('#nv-add').addEventListener('click', ()=>{ const f=$('#leadForm'); f.reset(); f.primeiro_contato.value=toLocalInput(new Date().toISOString()); if(ATEND.includes(S.user.nome)) f.atendente.value=S.user.nome; $('#mLead').classList.add('on'); f.nome_aluno.focus(); });
+  $('#leadCancel').addEventListener('click', ()=>$('#mLead').classList.remove('on'));
+  $('#leadForm').addEventListener('submit', async e=>{
+    e.preventDefault(); const f=e.target;
+    const row = {
+      turma_interesse:f.turma_interesse.value, nome_aluno:f.nome_aluno.value.trim(), nome_responsavel:f.nome_responsavel.value.trim()||null,
+      contato_responsavel:f.contato_responsavel.value.trim()||null, primeiro_contato:fromLocalInput(f.primeiro_contato.value),
+      atendente:f.atendente.value||null, agendamento:f.agendamento.value==='true', data_agendamento:fromLocalInput(f.data_agendamento.value),
+      historico:f.historico.value.trim()||null, status: f.agendamento.value==='true'?'Em análise':'Interesse',
+      criado_por:S.user.nome, atualizado_por:S.user.nome };
+    const {error} = await sb.from('crm_leads').insert(row);
+    if(error){ toast('Erro ao salvar: '+error.message,true); return; }
+    $('#mLead').classList.remove('on'); toast('Contato cadastrado ✓'); scheduleLoad();
+  });
+  // edição inline (delegada)
+  $('main').addEventListener('change', onCellChange);
+  $('main').addEventListener('click', onCellClick);
+  // CSV
+  $('#rem-csv').addEventListener('click',()=>csv('rematriculas_2027', $('#rem-tbl')));
+  $('#nv-csv').addEventListener('click',()=>csv('novas_matriculas_2027', $('#nv-tbl')));
+  $('#tm-csv').addEventListener('click',()=>csv('turmas_2027', $('#tm-tbl')));
+  $('#rg-csv').addEventListener('click',()=>csv('renegociacao', $('#rg-tbl')));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') $$('.modal').forEach(m=>m.classList.remove('on')); });
+}
+
+function onCellChange(e){
+  const el=e.target; if(!el.dataset.f) return;
+  const tr=el.closest('tr'); const table=el.closest('table').dataset.table; const id=tr.dataset.id; const key=tr.dataset.key||'id';
+  let v;
+  if(el.type==='checkbox') v=el.checked;
+  else if(el.type==='number') v = el.value===''?null:parseFloat(el.value);
+  else if(el.type==='datetime-local') v = fromLocalInput(el.value);
+  else if(el.dataset.bool) v = el.value==='true';
+  else v = el.value===''?null:el.value;
+  const patch={[el.dataset.f]:v};
+  if(el.dataset.f==='rematriculado' && v) patch.rematriculado_por=S.user.nome;
+  if(el.dataset.f==='matricula_fechada' && v) patch.fechada_por=S.user.nome;
+  if(el.dataset.f==='status' && v==='Matrícula efetivada') { patch.matricula_fechada=true; patch.fechada_por=S.user.nome; }
+  if(el.dataset.f==='status' || el.dataset.f==='situacao') el.className='cell st '+(STATUS_CLS[v]||RENEG_CLS[v]||'');
+  upd(table, key, id, patch);
+}
+function onCellClick(e){
+  const b=e.target.closest('button[data-del]'); if(!b) return;
+  if(b.dataset.armed){ sb.from('crm_leads').delete().eq('id',b.dataset.del).then(({error})=>{ if(error) toast('Erro: '+error.message,true); else toast('Contato excluído'); scheduleLoad(); }); }
+  else { b.dataset.armed='1'; b.textContent='Confirmar exclusão?'; b.classList.add('danger'); setTimeout(()=>{ b.dataset.armed=''; b.textContent='Excluir'; b.classList.remove('danger'); },3500); }
+}
+
+// ===================== RENDER =====================
+function render(){
+  if(isEditing()){ S.dirty=true; return; }
+  $('#n-rem').textContent = S.alunos.length;
+  $('#n-novas').textContent = S.leads.filter(l=>l.status!=='Desistente').length;
+  $('#n-turmas').textContent = S.turmas.length;
+  $('#n-reneg').textContent = S.reneg.filter(r=>r.situacao!=='Quitado').length;
+  ({rem:renderRem, novas:renderNovas, turmas:renderTurmas, reneg:renderReneg})[S.tab]();
+}
+const tile=(v,l,c)=>`<div class="tile ${c||''}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+const ck=(f,on,cls,title)=>`<input type="checkbox" class="ck ${cls}" data-f="${f}" ${on?'checked':''} title="${title||''}">`;
+const txt=(f,v,ph)=>`<input type="text" class="cell" data-f="${f}" value="${esc(v)}" placeholder="${ph||''}">`;
+
+// ---------- Rematrículas ----------
+function renderRem(){
+  const A=S.alunos;
+  const rem=A.filter(a=>a.rematriculado).length, ina=A.filter(a=>a.inadimplente).length, wait=A.filter(a=>!a.rematriculado&&!a.inadimplente).length;
+  $('#rem-tiles').innerHTML = tile(A.length,'Alunos atuais (6º ano à 2ª série)','g')+tile(rem,`Rematriculados · ${A.length?Math.round(rem/A.length*100):0}%`,'ok')+tile(ina,'Inadimplentes','bad')+tile(wait,'Aguardando rematrícula','wait');
+  // lista suspensa
+  const jump=$('#rem-jump');
+  if(jump.options.length<=1){
+    jump.innerHTML='<option value="">Selecione um aluno…</option>'+SERIES_2026.map(s=>`<optgroup label="${s} (2026)">`+A.filter(a=>a.serie_2026===s).map(a=>`<option value="${a.id}">${esc(a.nome)} — ${a.matricula}</option>`).join('')+'</optgroup>').join('');
+  }
+  const fs=$('#rem-serie').value, fsit=$('#rem-sit').value, q=norm($('#rem-q').value);
+  const rows=A.filter(a=>(!fs||a.serie_2026===fs)&&(!q||norm(a.nome).includes(q)||a.matricula.includes(q))&&(!fsit||sit(a)===fsit||(fsit==='Inadimplente'&&a.inadimplente)));
+  function sit(a){ return a.rematriculado?'Rematriculado':(a.inadimplente?'Inadimplente':'Aguardando'); }
+  let html='', last='';
+  for(const a of rows){
+    if(a.serie_2026!==last){ last=a.serie_2026; html+=`<tr class="grp"><td colspan="10">${last} · 2026 → ${SERIES[serieIdx(last)+1]} · 2027 <span class="muted">(${A.filter(x=>x.serie_2026===last).length} alunos)</span></td></tr>`; }
+    const badges = (a.rematriculado?'<span class="badge b-ok">Rematriculado</span>':'')+(a.inadimplente?'<span class="badge b-bad">Inadimplente</span>':'')+(!a.rematriculado&&!a.inadimplente?'<span class="badge b-wait">Aguardando</span>':'');
+    html+=`<tr data-id="${a.id}">
+      <td class="num muted">${a.matricula}</td><td class="name">${esc(a.nome)}</td><td>${a.serie_2026}</td><td>${a.serie_2027}</td>
+      <td class="c">${ck('rematriculado',a.rematriculado,'ok','Marcar como rematriculado')}</td>
+      <td class="dt">${a.rematriculado_em?fmtDT(a.rematriculado_em)+(a.rematriculado_por?` <span class="muted">· ${esc(a.rematriculado_por)}</span>`:''):'<span class="muted">—</span>'}</td>
+      <td class="c">${ck('inadimplente',a.inadimplente,'bad','Marcar como inadimplente (vai para Renegociação)')}</td>
+      <td><div class="bstack">${badges}</div></td>
+      <td>${txt('observacao',a.observacao,'anotações…')}</td>
+      <td class="muted">${esc(a.atualizado_por||'')}</td></tr>`;
+  }
+  $('#rem-tbl tbody').innerHTML = html || `<tr><td colspan="10" class="empty">Nenhum aluno encontrado.</td></tr>`;
+}
+
+// ---------- Novas matrículas ----------
+function sugestao(l){
+  if(l.matricula_fechada) return 'Matrícula efetivada';
+  if(l.proposta_enviada && (l.visita_realizada||l.atendimento_realizado)) return 'Fechando';
+  if(l.atendimento_realizado||l.visita_realizada||l.agendamento) return 'Em análise';
+  return 'Interesse';
+}
+function heat(l){ const n={'Desistente':0,'Interesse':1,'Em análise':2,'Fechando':3,'Matrícula efetivada':4}[l.status]??1; return '<span class="heat">'+[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')+'</span>'; }
+function renderNovas(){
+  const L=S.leads;
+  const c=s=>L.filter(l=>l.status===s).length;
+  $('#nv-tiles').innerHTML = tile(L.length,'Contatos registrados','g')+tile(c('Matrícula efetivada'),'Matrículas efetivadas','ok')+tile(c('Fechando'),'Fechando','t')+tile(c('Em análise'),'Em análise','wait')+tile(c('Interesse'),'Interesse','m')+tile(c('Desistente'),'Desistentes','');
+  const fst=$('#nv-st').value, ft=$('#nv-turma').value, fa=$('#nv-at').value, q=norm($('#nv-q').value);
+  const rows=L.filter(l=>(!fst||l.status===fst)&&(!ft||l.turma_interesse===ft)&&(!fa||(fa==='__none'?!l.atendente:l.atendente===fa))&&(!q||norm(l.nome_aluno+' '+(l.nome_responsavel||'')+' '+(l.contato_responsavel||'')).includes(q)));
+  const opt=(arr,sel,blank)=>(blank?`<option value="">${blank}</option>`:'')+arr.map(s=>`<option ${s===sel?'selected':''}>${esc(s)}</option>`).join('');
+  let html='';
+  for(const l of rows){
+    const sug=sugestao(l); const d=daysSince(l.atualizado_em);
+    let hint = '';
+    if(l.status!=='Matrícula efetivada' && l.status!=='Desistente' && d>=14) hint=`<div class="sug warn">⚠ sem movimentação há ${d} dias</div>`;
+    else if(sug!==l.status && !l.matricula_fechada) hint=`<div class="sug">Sugestão pelo andamento: ${sug}</div>`;
+    html+=`<tr data-id="${l.id}">
+      <td><select class="cell" data-f="turma_interesse">${opt(SERIES,l.turma_interesse)}</select></td>
+      <td class="name">${txt('nome_aluno',l.nome_aluno)}</td>
+      <td>${txt('nome_responsavel',l.nome_responsavel,'responsável')}</td>
+      <td>${txt('contato_responsavel',l.contato_responsavel,'telefone / e-mail')}</td>
+      <td class="dt"><input type="datetime-local" class="cell" data-f="primeiro_contato" value="${toLocalInput(l.primeiro_contato)}"></td>
+      <td class="c"><select class="cell ${l.agendamento?'st s-analise':''}" data-f="agendamento" data-bool="1" style="min-width:70px"><option value="false" ${!l.agendamento?'selected':''}>Não</option><option value="true" ${l.agendamento?'selected':''}>Sim</option></select></td>
+      <td class="dt"><input type="datetime-local" class="cell" data-f="data_agendamento" value="${toLocalInput(l.data_agendamento)}"></td>
+      <td><select class="cell" data-f="atendente">${opt(ATEND,l.atendente,'—')}</select></td>
+      <td class="c">${ck('atendimento_realizado',l.atendimento_realizado,'doc','Atendimento realizado')}</td>
+      <td class="c">${ck('visita_realizada',l.visita_realizada,'doc','Visitou a escola')}</td>
+      <td class="c">${ck('proposta_enviada',l.proposta_enviada,'doc','Proposta / valores enviados')}</td>
+      <td><textarea class="cell" data-f="historico" rows="2" placeholder="registre cada contato…">${esc(l.historico)}</textarea></td>
+      <td class="dt"><input type="date" class="cell" data-f="proximo_retorno" value="${l.proximo_retorno||''}"></td>
+      <td><select class="cell st ${STATUS_CLS[l.status]||''}" data-f="status">${opt(STATUS,l.status)}</select>${heat(l)}${hint}</td>
+      <td class="c">${ck('matricula_fechada',l.matricula_fechada,'ok','Fechar matrícula → entra na turma 2027')}${l.fechada_em?`<div class="sug">${fmtDT(l.fechada_em)}${l.fechada_por?' · '+esc(l.fechada_por):''}</div>`:''}</td>
+      <td><button class="btn g sm" data-del="${l.id}">Excluir</button></td></tr>`;
+  }
+  $('#nv-tbl tbody').innerHTML = html || `<tr><td colspan="16" class="empty">Nenhum contato ainda. Clique em <b>+ Novo contato</b> para registrar o primeiro atendimento.</td></tr>`;
+}
+
+// ---------- Turmas 2027 ----------
+const DOCS=[['contrato_assinado','Contrato'],['documentos_pessoais','Docs pessoais'],['comprovante_residencia','Comprovante'],['historico_escolar','Histórico']];
+const docsOk=t=>DOCS.filter(([f])=>t[f]).length;
+function renderTurmas(){
+  const T=S.turmas;
+  const completos=T.filter(t=>docsOk(t)===4).length;
+  $('#tm-tiles').innerHTML = tile(T.length,'Alunos confirmados para 2027','g')+tile(T.filter(t=>t.origem==='Rematrícula').length,'Rematrículas','t')+tile(T.filter(t=>t.origem==='Novato').length,'Novatos','m')+tile(completos,'Documentação completa','ok')+tile(T.length-completos,'Documentação pendente','wait');
+  $('#tm-chips').innerHTML = `<button class="${S.tmSerie===''?'on':''}" data-s="">Todas <span class="n">${T.length}</span></button>`+SERIES.map(s=>`<button class="${S.tmSerie===s?'on':''}" data-s="${s}">${s} <span class="n">${T.filter(t=>t.serie===s).length}</span></button>`).join('');
+  $$('#tm-chips button').forEach(b=>b.onclick=()=>{ S.tmSerie=b.dataset.s; render(); });
+  const fo=$('#tm-orig').value, fd=$('#tm-doc').value, q=norm($('#tm-q').value);
+  const rows=T.filter(t=>(!S.tmSerie||t.serie===S.tmSerie)&&(!fo||t.origem===fo)&&(!fd||(fd==='completa'?docsOk(t)===4:docsOk(t)<4))&&(!q||norm(t.nome).includes(q)||(t.matricula||'').includes(q)));
+  let html='', last='';
+  for(const t of rows){
+    if(t.serie!==last){ last=t.serie; html+=`<tr class="grp"><td colspan="11">${last} · 2027 <span class="muted">(${T.filter(x=>x.serie===last).length} alunos${last==='6º ano'?' · turma formada só por novatos':''})</span></td></tr>`; }
+    const n=docsOk(t);
+    html+=`<tr data-id="${t.id}">
+      <td>${t.serie}</td><td class="name">${esc(t.nome)}</td><td class="num muted">${t.matricula||'<span class="muted">novato</span>'}</td>
+      <td><span class="badge ${t.origem==='Rematrícula'?'b-t':'b-m'}">${t.origem}</span></td>
+      ${DOCS.map(([f,l])=>`<td class="c">${ck(f,t[f],'doc',l)}</td>`).join('')}
+      <td><span class="prog">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}<b>${n}/4</b></span> ${n===4?'<span class="badge b-ok">Completa</span>':''}</td>
+      <td>${txt('observacao',t.observacao,'ex.: falta RG do responsável')}</td>
+      <td class="muted">${esc(t.atualizado_por||'')}</td></tr>`;
+  }
+  $('#tm-tbl tbody').innerHTML = html || `<tr><td colspan="11" class="empty">Nenhum aluno confirmado para esta seleção. Alunos entram aqui ao marcar <b>Rematriculado</b> ou <b>Matrícula fechada</b>.</td></tr>`;
+}
+
+// ---------- Renegociação ----------
+function renderReneg(){
+  const R=S.reneg.map(r=>({...r, aluno:S.alunos.find(a=>a.id===r.aluno_id)})).filter(r=>r.aluno).sort((x,y)=>RENEG.indexOf(x.situacao)-RENEG.indexOf(y.situacao)||x.aluno.nome.localeCompare(y.aluno.nome,'pt-BR'));
+  const c=s=>R.filter(r=>r.situacao===s).length;
+  const total=R.filter(r=>r.situacao!=='Quitado').reduce((s,r)=>s+(Number(r.valor_devido)||0),0);
+  $('#rg-tiles').innerHTML = tile(R.length,'Alunos em renegociação','bad')+tile(c('Pendente'),'Pendentes','bad')+tile(c('Em negociação'),'Em negociação','wait')+tile(c('Acordo firmado'),'Acordo firmado','t')+tile(c('Quitado'),'Quitados','ok')+tile('R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:2}),'Em aberto (informado)','g');
+  const fs=$('#rg-sit').value, q=norm($('#rg-q').value);
+  const rows=R.filter(r=>(!fs||r.situacao===fs)&&(!q||norm(r.aluno.nome).includes(q)||r.aluno.matricula.includes(q)));
+  const opt=(arr,sel)=>arr.map(s=>`<option ${s===sel?'selected':''}>${esc(s)}</option>`).join('');
+  let html='';
+  for(const r of rows){ const a=r.aluno;
+    html+=`<tr data-id="${r.aluno_id}" data-key="aluno_id">
+      <td class="name">${esc(a.nome)}</td><td class="num muted">${a.matricula}</td><td>${a.serie_2026}</td>
+      <td class="dt">${a.inadimplente?fmtDT(a.inadimplente_em):'<span class="badge b-ok">Regularizado</span>'}</td>
+      <td>${a.rematriculado?'<span class="badge b-ok">Rematriculado</span>':'<span class="badge b-wait">Aguardando</span>'}</td>
+      <td><select class="cell st ${RENEG_CLS[r.situacao]||''}" data-f="situacao">${opt(RENEG,r.situacao)}</select></td>
+      <td><input type="number" step="0.01" min="0" class="cell" data-f="valor_devido" value="${r.valor_devido??''}" placeholder="0,00"></td>
+      <td><textarea class="cell" data-f="proposta" rows="2" placeholder="parcelamento, desconto, datas…">${esc(r.proposta)}</textarea></td>
+      <td><textarea class="cell" data-f="observacao" rows="2" placeholder="observações">${esc(r.observacao)}</textarea></td>
+      <td class="muted">${esc(r.atualizado_por||'')}</td></tr>`;
+  }
+  $('#rg-tbl tbody').innerHTML = html || `<tr><td colspan="10" class="empty">Nenhum aluno em renegociação. Marque <b>Inadimplente</b> na aba Rematrículas para enviar ao financeiro.</td></tr>`;
+}
+
+// ---------- CSV ----------
+function csv(name, table){
+  const cellVal = td => { const i=td.querySelector('input,select,textarea'); if(i){ if(i.type==='checkbox') return i.checked?'Sim':'Não'; if(i.tagName==='SELECT') return i.options[i.selectedIndex]?.text||''; return i.value; } return td.innerText.trim(); };
+  const head=$$('thead th',table).map(th=>th.innerText.trim());
+  const lines=[head]; $$('tbody tr',table).forEach(tr=>{ if(tr.classList.contains('grp')||tr.querySelector('.empty')) return; lines.push($$('td',tr).map(cellVal)); });
+  const out='﻿'+lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([out],{type:'text/csv;charset=utf-8'})); a.download=name+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+</script>
+</body>
+</html>
