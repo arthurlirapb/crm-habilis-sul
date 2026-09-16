@@ -154,6 +154,48 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
 #toast.on{opacity:1}#toast.err{background:var(--vermelho)}
 .legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;align-items:center}
 .legend span.l{font-size:12px;color:var(--muted);font-weight:600}
+/* relatório */
+.modal .box.wide{width:min(980px,100%)}
+.rel-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:2}
+.rel-bar .vagas{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.rel-bar .vagas label.f{min-width:0}
+.rel-bar .vagas input{width:64px;padding:6px 6px;text-align:center}
+.rel-bar .sp{flex:1}
+#relWrap{padding:20px 24px;background:#DDD8CF}
+.rel{width:190mm;max-width:100%;margin:0 auto;background:#fff;color:var(--text);padding:12mm 12mm 10mm;box-shadow:0 2px 12px rgba(0,0,0,.12);font-size:11.5px;line-height:1.4}
+.rel *{box-sizing:border-box}
+.rel .hd{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:3px solid var(--amarelo);margin-bottom:6px}
+.rel .hd img{height:44px}
+.rel .hd h1{font-size:19px;margin:0;color:var(--grafite)}
+.rel .hd small{display:block;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:10px;margin-top:2px}
+.rel .stripe3{display:grid;grid-template-columns:1fr 1fr 1fr;height:5px;margin-bottom:10px}
+.rel .stripe3 i:nth-child(1){background:var(--amarelo)}.rel .stripe3 i:nth-child(2){background:var(--magenta)}.rel .stripe3 i:nth-child(3){background:var(--turquesa)}
+.rel .gen{display:flex;justify-content:space-between;gap:10px;background:var(--amarelo-bg);border-left:4px solid var(--amarelo);padding:7px 10px;border-radius:6px;margin-bottom:12px;font-weight:700;color:var(--grafite)}
+.rel .gen span{font-weight:600;color:var(--muted)}
+.rel h2{font-size:14px;margin:14px 0 8px;color:var(--grafite);display:flex;align-items:center;gap:8px}
+.rel h2::before{content:"";width:8px;height:18px;border-radius:3px;background:var(--turquesa)}
+.rel h2.m::before{background:var(--magenta)}.rel h2.y::before{background:var(--amarelo)}
+.rel .tiles{grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+.rel .tile{padding:8px 10px;border-left-width:4px}
+.rel .tile .v{font-size:20px}.rel .tile .l{font-size:10px;margin-top:2px}
+.rel .row{display:grid;grid-template-columns:150px 1fr 190px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line2);page-break-inside:avoid}
+.rel .row.total{background:var(--bg);border-radius:6px;padding:8px 8px;margin-bottom:4px;font-weight:700}
+.rel .row b{font-family:var(--font-d);font-size:12px;color:var(--grafite)}
+.rel .row small{display:block;color:var(--muted);font-weight:600;font-size:10px}
+.rel .pb{height:16px;border-radius:8px;background:var(--line2);overflow:hidden;display:flex;position:relative}
+.rel .pb i{height:100%;display:block}
+.rel .pb i.ok{background:var(--verde)}.rel .pb i.bad{background:var(--vermelho)}.rel .pb i.wait{background:var(--amarelo)}.rel .pb i.t{background:var(--turquesa)}.rel .pb i.m{background:var(--magenta)}.rel .pb i.g{background:var(--cinza)}.rel .pb i.ok2{background:#7CC59A}.rel .pb i.t2{background:#A9D3D8}
+.rel .pb i.over{background:repeating-linear-gradient(45deg,var(--vermelho),var(--vermelho) 4px,#F09A92 4px,#F09A92 8px)}
+.rel .pct{position:absolute;right:6px;top:0;line-height:16px;font-size:10px;font-weight:800;color:var(--grafite);font-family:var(--font-d)}
+.rel .kv{font-size:10.5px;line-height:1.35;color:var(--text);font-variant-numeric:tabular-nums}
+.rel .kv em{font-style:normal;display:inline-flex;align-items:center;gap:4px;margin-right:6px;white-space:nowrap}
+.rel .kv em::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--line)}
+.rel .kv em.ok::before{background:var(--verde)}.rel .kv em.bad::before{background:var(--vermelho)}.rel .kv em.wait::before{background:var(--amarelo)}.rel .kv em.t::before{background:var(--turquesa)}.rel .kv em.m::before{background:var(--magenta)}.rel .kv em.g::before{background:var(--cinza)}.rel .kv em.ok2::before{background:#7CC59A}.rel .kv em.t2::before{background:#A9D3D8}
+.rel .legend{margin:2px 0 6px;gap:6px}
+.rel .legend .badge{font-size:10px;padding:2px 8px}
+.rel .foot{margin-top:14px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:9.5px;display:flex;justify-content:space-between}
+.rel .sec{page-break-inside:avoid}
+@media print{ body *{visibility:hidden} #mRel,#mRel *{visibility:visible} #mRel{position:static;background:#fff;padding:0;display:block} #mRel .box{box-shadow:none;max-height:none;width:100%;border-radius:0} .rel-bar,#mRel .stripe{display:none!important} #relWrap{padding:0;background:#fff} .rel{box-shadow:none;width:100%;padding:0} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -185,6 +227,7 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
       <div class="sp"></div>
       <div class="user">
         <span class="who"><b id="uini"></b><span id="uname"></span></span>
+        <button class="btn t sm" id="btnRel">Gerar Relatório</button>
         <button class="btn g sm" id="btnPwd">Trocar senha</button>
         <button class="btn g sm" id="btnOut">Sair</button>
       </div>
@@ -305,9 +348,26 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
   </form>
 </div>
 
+<!-- modal relatório -->
+<div class="modal" id="mRel">
+  <div class="box wide">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="rel-bar">
+      <div class="vagas" id="relVagas"></div>
+      <button class="btn g sm" id="relSalvarVagas">Salvar vagas</button>
+      <div class="sp"></div>
+      <button class="btn g sm" id="relAtualizar">Atualizar</button>
+      <button class="btn t sm" id="relPdf">Baixar PDF</button>
+      <button class="btn g sm" id="relFechar">Fechar</button>
+    </div>
+    <div id="relWrap"><div class="rel" id="relatorio"></div></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>if(!window.supabase){document.write('<script src="https://lnwkkomjfidfqqsxtznd.supabase.co/functions/v1/crm-matriculas-sul/supabase.js"><\/script>');}</script>
 <script>
 // ===================== CONFIGURAÇÃO =====================
@@ -316,6 +376,7 @@ document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO); document.getElemen
 const SB_URL = 'https://lnwkkomjfidfqqsxtznd.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxud2trb21qZmlkZnFxc3h0em5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNDgwODcsImV4cCI6MjEwMDgyNDA4N30.pyIKIqe_VuJIjJ-eD_12ugAVygvALy21IA9f1GRwyso';
 const DOMINIO = '@habilissul.crm';
+const UNIDADE = 'sul';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
 const SERIES = ['6º ano','7º ano','8º ano','9º ano','1ª série','2ª série','3ª série'];
@@ -327,7 +388,7 @@ const ATEND = ['Graça','Plácido','Arthur'];
 const RENEG = ['Pendente','Em negociação','Acordo firmado','Quitado'];
 const RENEG_CLS = {'Pendente':'r-pendente','Em negociação':'r-negociacao','Acordo firmado':'r-acordo','Quitado':'r-quitado'};
 
-const S = { user:null, alunos:[], leads:[], turmas:[], reneg:[], tab:'rem', tmSerie:'', dirty:false };
+const S = { user:null, alunos:[], leads:[], turmas:[], reneg:[], vagas:{}, tab:'rem', tmSerie:'', dirty:false };
 const $ = (s,el=document)=>el.querySelector(s);
 const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
 const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -390,11 +451,12 @@ $('#pwdForm').addEventListener('submit', async e=>{
 let loadT;
 function scheduleLoad(){ clearTimeout(loadT); loadT=setTimeout(loadAll, 250); }
 async function loadAll(){
-  const [a,l,t,r] = await Promise.all([
+  const [a,l,t,r,cfg] = await Promise.all([
     sb.from('crm_alunos_2026').select('*'),
     sb.from('crm_leads').select('*'),
     sb.from('crm_turmas_2027').select('*'),
     sb.from('crm_renegociacao').select('*'),
+    sb.from('crm_config').select('*').eq('unidade', UNIDADE),
   ]);
   const err = a.error||l.error||t.error||r.error;
   if(err){ toast('Erro ao carregar: '+err.message, true); if(/JWT|token|expired/i.test(err.message)) showLogin(); return; }
@@ -403,6 +465,7 @@ async function loadAll(){
   S.leads = l.data.sort((x,y)=>new Date(y.primeiro_contato)-new Date(x.primeiro_contato));
   S.turmas = t.data.sort((x,y)=>serieIdx(x.serie)-serieIdx(y.serie) || byNome(x,y));
   S.reneg = r.data;
+  if(cfg.data) cfg.data.forEach(c=>S.vagas[c.serie]=c.vagas);
   render();
 }
 function subscribe(){
@@ -411,6 +474,7 @@ function subscribe(){
     .on('postgres_changes',{event:'*',schema:'public',table:'crm_leads'},scheduleLoad)
     .on('postgres_changes',{event:'*',schema:'public',table:'crm_turmas_2027'},scheduleLoad)
     .on('postgres_changes',{event:'*',schema:'public',table:'crm_renegociacao'},scheduleLoad)
+    .on('postgres_changes',{event:'*',schema:'public',table:'crm_config'},scheduleLoad)
     .subscribe();
 }
 async function upd(table, key, id, patch){
@@ -622,6 +686,92 @@ function renderReneg(){
   }
   $('#rg-tbl tbody').innerHTML = html || `<tr><td colspan="10" class="empty">Nenhum aluno em renegociação. Marque <b>Inadimplente</b> na aba Rematrículas para enviar ao financeiro.</td></tr>`;
 }
+
+
+// ===================== RELATÓRIO (PDF) =====================
+const UNIDADE_NOME = document.querySelector('.top .ttl small').textContent.split('·')[0].trim();
+const pct = (a,b)=> b? Math.round(a/b*100) : 0;
+const fmtNow = ()=> new Date().toLocaleString('pt-BR',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+function vagasDe(s){ const v=S.vagas[s]; return (v===null||v===undefined||v==='')?null:Number(v); }
+function segs(parts,total){ // parts: [[cls,n],...]
+  return parts.filter(([c,n])=>n>0).map(([c,n])=>`<i class="${c}" style="width:${total?(n/total*100):0}%"></i>`).join('');
+}
+function relatorioHTML(){
+  const A=S.alunos, L=S.leads, T=S.turmas;
+  const gen=fmtNow();
+  const origem2026 = s => { const o=SERIES[serieIdx(s)-1]; return (o.includes('série')?'da ':'do ')+o; };
+  // --- rematrículas por turma 2027 (destino) ---
+  const remRows = SERIES.filter(s=>A.some(a=>a.serie_2027===s)).map(s=>{
+    const g=A.filter(a=>a.serie_2027===s); const tot=g.length;
+    const rem=g.filter(a=>a.rematriculado).length, inad=g.filter(a=>a.inadimplente).length;
+    const inadNR=g.filter(a=>a.inadimplente&&!a.rematriculado).length, pend=g.filter(a=>!a.rematriculado&&!a.inadimplente).length;
+    return {s, tot, rem, inad, inadNR, pend};
+  });
+  const totA=A.length, totRem=A.filter(a=>a.rematriculado).length, totInad=A.filter(a=>a.inadimplente).length, totInadNR=A.filter(a=>a.inadimplente&&!a.rematriculado).length, totPend=A.filter(a=>!a.rematriculado&&!a.inadimplente).length;
+  const remRow = r => `<div class="row"><div><b>${r.s} · 2027</b><small>${r.tot} alunos ${origem2026(r.s)} de 2026</small></div>
+    <div class="pb">${segs([['ok',r.rem],['bad',r.inadNR],['wait',r.pend]],r.tot)}<span class="pct">${pct(r.rem,r.tot)}%</span></div>
+    <div class="kv"><em class="ok">${r.rem} rematriculados</em><em class="wait">${r.pend} pendentes</em><br><em class="bad">${r.inadNR} inadimplentes sem rematrícula</em><br>Índice de inadimplência: <b>${pct(r.inad,r.tot)}%</b> (${r.inad} de ${r.tot})</div></div>`;
+  // --- novas matrículas por turma de interesse ---
+  const leadRows = SERIES.map(s=>{ const g=L.filter(l=>l.turma_interesse===s); const c=st=>g.filter(l=>l.status===st).length;
+    return {s, n:g.length, ef:c('Matrícula efetivada'), fe:c('Fechando'), an:c('Em análise'), it:c('Interesse'), de:c('Desistente')}; }).filter(r=>r.n>0);
+  const lt = {n:L.length, ef:L.filter(l=>l.status==='Matrícula efetivada').length, fe:L.filter(l=>l.status==='Fechando').length, an:L.filter(l=>l.status==='Em análise').length, it:L.filter(l=>l.status==='Interesse').length, de:L.filter(l=>l.status==='Desistente').length};
+  const leadRow = (r,label,sub) => `<div class="row${label==='Total'?' total':''}"><div><b>${label}</b><small>${sub}</small></div>
+    <div class="pb">${segs([['ok',r.ef],['t',r.fe],['wait',r.an],['m',r.it],['g',r.de]],r.n)}<span class="pct">${r.n} lead${r.n===1?'':'s'}</span></div>
+    <div class="kv"><em class="ok">${r.ef} efetivada${r.ef===1?'':'s'}</em><em class="t">${r.fe} fechando</em><em class="wait">${r.an} em análise</em><br><em class="m">${r.it} interesse</em><em class="g">${r.de} desistente${r.de===1?'':'s'}</em></div></div>`;
+  // --- lotação 2027 ---
+  const lotRows = SERIES.map(s=>{ const rem=T.filter(t=>t.serie===s&&t.origem==='Rematrícula').length, nov=T.filter(t=>t.serie===s&&t.origem==='Novato').length;
+    const fech=L.filter(l=>l.turma_interesse===s&&l.status==='Fechando').length; const vagas=vagasDe(s); const conf=rem+nov;
+    return {s, rem, nov, conf, fech, vagas, rest: vagas===null?null:vagas-conf}; });
+  const totConf=lotRows.reduce((a,r)=>a+r.conf,0), totVagas=lotRows.every(r=>r.vagas!==null)?lotRows.reduce((a,r)=>a+r.vagas,0):null;
+  const lotRow = r => { const base=r.vagas||Math.max(r.conf+r.fech,1); const over=r.vagas!==null&&r.conf>r.vagas;
+    return `<div class="row"><div><b>${r.s} · 2027</b><small>${r.vagas===null?'vagas não definidas':r.vagas+' vagas'}</small></div>
+    <div class="pb">${over?`<i class="over" style="width:100%"></i>`:segs([['ok',r.rem],['ok2',r.nov],['t2',r.fech]],base)}<span class="pct">${r.vagas===null?r.conf+' alunos':pct(r.conf,r.vagas)+'%'}</span></div>
+    <div class="kv"><em class="ok">${r.rem} rematriculados</em><em class="ok2">${r.nov} novatos</em><br>Confirmados: <b>${r.conf}</b>${r.vagas!==null?` · Lotação <b>${pct(r.conf,r.vagas)}%</b> · ${r.rest>=0?`<b>${r.rest}</b> vaga${r.rest===1?'':'s'} restante${r.rest===1?'':'s'}`:`<b style="color:var(--vermelho)">${-r.rest} acima da capacidade</b>`}`:''}<br><em class="t2" style="--c:#A9D3D8">${r.fech} fechando (potencial)</em></div></div>`; };
+  const tile=(v,l,c)=>`<div class="tile ${c}"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  return `
+  <div class="hd"><img src="${LOGO}" alt="Habilis"><div><h1>Relatório de Matrículas 2027</h1><small>${esc(UNIDADE_NOME)} · Rematrículas, novas matrículas e lotação</small></div></div>
+  <div class="stripe3"><i></i><i></i><i></i></div>
+  <div class="gen"><div>Gerado em ${gen}</div><span>por ${esc(S.user.nome)} · dados ao vivo do CRM</span></div>
+  <div class="tiles">${tile(totA,'Alunos atuais (2026)','g')}${tile(totRem+' · '+pct(totRem,totA)+'%','Rematriculados','ok')}${tile(totPend,'Pendentes (sem inadimplência)','wait')}${tile(totInad+' · '+pct(totInad,totA)+'%','Inadimplentes · índice','bad')}</div>
+  <div class="tiles">${tile(lt.n,'Leads registrados','m')}${tile(lt.ef,'Matrículas efetivadas','ok')}${tile(totConf,'Confirmados para 2027','t')}${tile(totVagas===null?'—':Math.max(totVagas-totConf,0),'Vagas restantes (total)','g')}</div>
+  <div class="sec"><h2>1. Rematrículas por turma de 2027</h2>
+  <div class="legend"><span class="badge b-ok">Rematriculado</span><span class="badge b-bad">Inadimplente sem rematrícula</span><span class="badge b-wait">Pendente</span></div>
+  <div class="row total"><div><b>Todas as turmas</b><small>${totA} alunos</small></div><div class="pb">${segs([['ok',totRem],['bad',totInadNR],['wait',totPend]],totA)}<span class="pct">${pct(totRem,totA)}%</span></div>
+    <div class="kv"><em class="ok">${totRem} rematriculados</em><em class="wait">${totPend} pendentes</em><br><em class="bad">${totInadNR} inadimplentes sem rematrícula</em><br>Índice de inadimplência: <b>${pct(totInad,totA)}%</b> (${totInad} de ${totA})</div></div>
+  ${remRows.map(remRow).join('')}</div>
+  <div class="sec"><h2 class="m">2. Novas matrículas (leads) por turma de interesse</h2>
+  <div class="legend"><span class="badge b-ok">Matrícula efetivada</span><span class="badge b-t">Fechando</span><span class="badge b-wait">Em análise</span><span class="badge b-m">Interesse</span><span class="badge b-g">Desistente</span></div>
+  ${L.length? leadRow(lt,'Total',lt.n+' contatos registrados') + leadRows.map(r=>leadRow(r,r.s+' · 2027',r.n+' contato'+(r.n===1?'':'s'))).join('') : '<div class="kv" style="padding:6px 0">Nenhum contato registrado ainda.</div>'}</div>
+  <div class="sec"><h2 class="y">3. Lotação das turmas de 2027</h2>
+  <div class="legend"><span class="badge b-ok">Rematriculados</span><span class="badge" style="background:#E2F4E9;color:#3E8A5E">Novatos efetivados</span><span class="badge" style="background:#E1F2F3;color:#2C6F76">Fechando (potencial)</span></div>
+  ${lotRows.map(lotRow).join('')}
+  <div class="row total"><div><b>Total 2027</b><small>${totVagas===null?'defina as vagas de todas as turmas':totVagas+' vagas'}</small></div><div class="pb">${segs([['ok',totConf]],totVagas||totConf)}<span class="pct">${totVagas===null?totConf+' alunos':pct(totConf,totVagas)+'%'}</span></div>
+    <div class="kv">Confirmados: <b>${totConf}</b>${totVagas!==null?` · Lotação <b>${pct(totConf,totVagas)}%</b> · <b>${Math.max(totVagas-totConf,0)}</b> vagas restantes`:''}</div></div></div>
+  <div class="foot"><span>Escola Habilis · ${esc(UNIDADE_NOME)} · CRM de Matrículas</span><span>Gerado em ${gen}</span></div>`;
+}
+function renderVagas(){
+  $('#relVagas').innerHTML = SERIES.map(s=>`<label class="f"><span>${s}</span><input class="inp" type="number" min="0" data-serie="${s}" value="${vagasDe(s)??''}" placeholder="vagas"></label>`).join('');
+}
+function openReport(){ renderVagas(); $('#relatorio').innerHTML = relatorioHTML(); $('#mRel').classList.add('on'); }
+$('#btnRel').addEventListener('click', openReport);
+$('#relFechar').addEventListener('click', ()=>$('#mRel').classList.remove('on'));
+$('#relAtualizar').addEventListener('click', ()=>{ $('#relatorio').innerHTML = relatorioHTML(); toast('Relatório atualizado'); });
+$('#relSalvarVagas').addEventListener('click', async ()=>{
+  const rows = $$('#relVagas input').map(i=>({unidade:UNIDADE, serie:i.dataset.serie, vagas:i.value===''?null:parseInt(i.value,10), atualizado_por:S.user.nome}));
+  const {error} = await sb.from('crm_config').upsert(rows, {onConflict:'unidade,serie'});
+  if(error){ toast('Erro ao salvar vagas: '+error.message, true); return; }
+  rows.forEach(r=>S.vagas[r.serie]=r.vagas); toast('Vagas salvas ✓'); $('#relatorio').innerHTML = relatorioHTML();
+});
+$('#relPdf').addEventListener('click', async ()=>{
+  const btn=$('#relPdf'); btn.disabled=true; btn.textContent='Gerando…';
+  try{
+    if(typeof html2pdf==='undefined') throw new Error('biblioteca de PDF não carregou');
+    const nome = `relatorio-matriculas-2027-${UNIDADE}-${new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')}.pdf`;
+    await html2pdf().set({margin:[8,8,8,8], filename:nome, image:{type:'jpeg',quality:0.96}, html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff'}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}, pagebreak:{mode:['css','legacy'], avoid:['.row','.tiles','h2']}}).from($('#relatorio')).save();
+    toast('PDF gerado ✓');
+  }catch(e){ toast('Não foi possível gerar o PDF: '+e.message+'. Abrindo impressão…', true); setTimeout(()=>window.print(), 800); }
+  btn.disabled=false; btn.textContent='Baixar PDF';
+});
 
 // ---------- CSV ----------
 function csv(name, table){
