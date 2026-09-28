@@ -414,25 +414,35 @@ $('#loginForm').addEventListener('submit', async e=>{
   const u = $('#lu').value.trim().toLowerCase(), p = $('#lp').value;
   const email = u.includes('@') ? u : u + DOMINIO;
   $('#lbtn').disabled = true; $('#lerr').hidden = true;
-  const {data, error} = await sb.auth.signInWithPassword({email, password:p});
+  let data, error;
+  try{ ({data, error} = await withTimeout(sb.auth.signInWithPassword({email, password:p}), 12000, 'timeout')); }catch(e){ error=e; }
   $('#lbtn').disabled = false;
-  if(error){ $('#lerr').textContent = 'Usuário ou senha incorretos.'; $('#lerr').hidden = false; return; }
+  if(error){ $('#lerr').textContent = error.message==='timeout' ? 'Sem resposta do servidor. Feche outras abas do CRM, verifique a internet e tente de novo.' : 'Usuário ou senha incorretos.'; $('#lerr').hidden = false; clearLocalSession(); return; }
   enter(data.user);
 });
-$('#btnOut').addEventListener('click', async ()=>{ await sb.auth.signOut(); location.reload(); });
+function clearLocalSession(){ try{ Object.keys(localStorage).filter(k=>k.startsWith('sb-')).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+const withTimeout = (p, ms, msg) => Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error(msg)), ms))]);
+$('#btnOut').addEventListener('click', async ()=>{ try{ await withTimeout(sb.auth.signOut({scope:'local'}), 5000, 'timeout'); }catch(e){} clearLocalSession(); location.reload(); });
 
-function showLogin(){ $('#login').style.display='grid'; $('#app').style.display='none'; }
+function showLogin(msg){ $('#login').style.display='grid'; $('#app').style.display='none'; if(msg){ $('#lerr').textContent=msg; $('#lerr').hidden=false; } }
 function enter(user){
   const meta = user.user_metadata||{};
   const login = (user.email||'').split('@')[0];
   S.user = { nome: meta.nome || (login.charAt(0).toUpperCase()+login.slice(1)), login, id:user.id };
   $('#uname').textContent = S.user.nome; $('#uini').textContent = S.user.nome.charAt(0).toUpperCase();
   $('#login').style.display='none'; $('#app').style.display='block';
-  buildStatic(); loadAll(); subscribe(); setInterval(loadAll, 60000);
+  if(!S.built){ S.built=true; buildStatic(); subscribe(); setInterval(loadAll, 60000); }
+  loadAll();
 }
 (async function init(){
-  const {data:{session}} = await sb.auth.getSession();
-  if(session) enter(session.user); else showLogin();
+  try{
+    const {data:{session}} = await withTimeout(sb.auth.getSession(), 8000, 'A página demorou para iniciar. Feche outras abas do CRM e recarregue (F5).');
+    if(session){
+      const {error} = await withTimeout(sb.auth.getUser(), 8000, 'Sem resposta do servidor. Verifique a internet e recarregue.');
+      if(error){ clearLocalSession(); showLogin('Sua sessão expirou. Entre novamente.'); }
+      else enter(session.user);
+    } else showLogin();
+  }catch(e){ clearLocalSession(); showLogin(e.message); }
   sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_OUT') showLogin(); });
 })();
 
@@ -459,7 +469,7 @@ async function loadAll(){
     sb.from('crm_config').select('*').eq('unidade', UNIDADE),
   ]);
   const err = a.error||l.error||t.error||r.error;
-  if(err){ toast('Erro ao carregar: '+err.message, true); if(/JWT|token|expired/i.test(err.message)) showLogin(); return; }
+  if(err){ if(/JWT|token|expired|session|401/i.test(err.message)){ clearLocalSession(); showLogin('Sua sessão expirou. Entre novamente.'); } else toast('Erro ao carregar: '+err.message, true); return; }
   const byNome = (x,y)=>x.nome.localeCompare(y.nome,'pt-BR');
   S.alunos = a.data.sort((x,y)=>serieIdx(x.serie_2026)-serieIdx(y.serie_2026) || byNome(x,y));
   S.leads = l.data.sort((x,y)=>new Date(y.primeiro_contato)-new Date(x.primeiro_contato));
