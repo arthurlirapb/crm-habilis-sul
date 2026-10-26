@@ -94,6 +94,11 @@ th.c,td.c{text-align:center}
 td{padding:6px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
 tbody tr:hover td{background:#FCFAF6}
 tbody tr.hl td{background:var(--amarelo-bg);transition:background .4s}
+tbody tr.des td{background:#FBE4E1!important;color:#7A2219}
+tbody tr.des td.name{color:#9B2C22}
+tbody tr.des .cell{background:transparent}
+.ck.des{accent-color:var(--vermelho)}
+.just{font-size:11.5px;color:#9B2C22;margin:0 0 4px;min-width:220px;max-width:320px;white-space:normal;line-height:1.3}
 tr.grp td{background:var(--line2);font-family:var(--font-d);font-weight:800;color:var(--grafite);padding:6px 10px;position:sticky;top:37px;z-index:1}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 td.name{font-weight:700;color:var(--grafite);white-space:nowrap}
@@ -249,14 +254,14 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
       <div class="bar">
         <label class="f grow"><span>Localizar aluno (lista atual 2026)</span><select class="inp" id="rem-jump"><option value="">Selecione um aluno…</option></select></label>
         <label class="f"><span>Série 2026</span><select class="inp" id="rem-serie"><option value="">Todas</option></select></label>
-        <label class="f"><span>Situação</span><select class="inp" id="rem-sit"><option value="">Todas</option><option>Aguardando</option><option>Rematriculado</option><option>Inadimplente</option></select></label>
+        <label class="f"><span>Situação</span><select class="inp" id="rem-sit"><option value="">Todas</option><option>Aguardando</option><option>Rematriculado</option><option>Inadimplente</option><option>Desistente</option></select></label>
         <label class="f grow"><span>Buscar</span><input class="inp" id="rem-q" placeholder="nome ou matrícula"></label>
         <button class="btn g" id="rem-csv">Exportar CSV</button>
       </div>
-      <div class="legend"><span class="l">Legenda:</span><span class="badge b-ok">Rematriculado</span><span class="badge b-bad">Inadimplente</span><span class="badge b-wait">Aguardando</span></div>
+      <div class="legend"><span class="l">Legenda:</span><span class="badge b-ok">Rematriculado</span><span class="badge b-bad">Inadimplente</span><span class="badge b-wait">Aguardando</span><span class="badge b-g" style="background:#7A2219;color:#fff">Desistente</span></div>
       <div class="tbl-wrap"><table id="rem-tbl" data-table="crm_alunos_2026"><thead><tr>
         <th>Matrícula</th><th>Aluno</th><th>Série 2026</th><th>Série 2027</th>
-        <th class="c">Rematriculado</th><th>Data / hora</th><th class="c">Inadimplente</th><th>Situação</th><th>Observação</th><th>Atualizado por</th>
+        <th class="c">Rematriculado</th><th>Data / hora</th><th class="c">Inadimplente</th><th class="c">Desistente</th><th>Situação</th><th>Observação</th><th>Atualizado por</th>
       </tr></thead><tbody></tbody></table></div>
     </section>
 
@@ -364,6 +369,19 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
   </div>
 </div>
 
+<!-- modal desistência -->
+<div class="modal" id="mDes">
+  <form class="box" id="desForm">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="body">
+      <h2>Registrar desistência</h2>
+      <p class="muted" style="margin:0" id="desNome"></p>
+      <label class="f"><span>Justificativa (obrigatória)</span><textarea class="inp" name="just" rows="3" required minlength="5" placeholder="Ex.: mudança de cidade, transferência para outra escola, motivo financeiro…"></textarea></label>
+      <p class="muted" style="margin:0;font-size:12px">O aluno sai de "Aguardando rematrícula", entra na estatística de desistentes e não vai para a turma de 2027. Se estiver rematriculado, a rematrícula é desfeita.</p>
+      <div class="row-end"><button type="button" class="btn g" id="desCancel">Cancelar</button><button class="btn danger" type="submit">Confirmar desistência</button></div>
+    </div>
+  </form>
+</div>
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -550,6 +568,7 @@ function onCellChange(e){
   else if(el.type==='datetime-local') v = fromLocalInput(el.value);
   else if(el.dataset.bool) v = el.value==='true';
   else v = el.value===''?null:el.value;
+  if(el.dataset.f==='desistente'){ if(v){ el.checked=false; openDesistencia(tr.dataset.id); } else { upd(table, key, id, {desistente:false}); } return; }
   const patch={[el.dataset.f]:v};
   if(el.dataset.f==='rematriculado' && v) patch.rematriculado_por=S.user.nome;
   if(el.dataset.f==='matricula_fechada' && v) patch.fechada_por=S.user.nome;
@@ -579,30 +598,31 @@ const txt=(f,v,ph)=>`<input type="text" class="cell" data-f="${f}" value="${esc(
 // ---------- Rematrículas ----------
 function renderRem(){
   const A=S.alunos;
-  const rem=A.filter(a=>a.rematriculado).length, ina=A.filter(a=>a.inadimplente).length, wait=A.filter(a=>!a.rematriculado&&!a.inadimplente).length;
-  $('#rem-tiles').innerHTML = tile(A.length,'Alunos atuais (6º ano à 2ª série)','g')+tile(rem,`Rematriculados · ${A.length?Math.round(rem/A.length*100):0}%`,'ok')+tile(ina,'Inadimplentes','bad')+tile(wait,'Aguardando rematrícula','wait');
+  const rem=A.filter(a=>a.rematriculado).length, ina=A.filter(a=>a.inadimplente&&!a.desistente).length, des=A.filter(a=>a.desistente).length, wait=A.filter(a=>!a.rematriculado&&!a.inadimplente&&!a.desistente).length;
+  $('#rem-tiles').innerHTML = tile(A.length,'Alunos atuais (6º ano à 2ª série)','g')+tile(rem,`Rematriculados · ${A.length?Math.round(rem/A.length*100):0}%`,'ok')+tile(ina,'Inadimplentes','bad')+tile(wait,'Aguardando rematrícula','wait')+tile(des,`Desistentes · ${A.length?Math.round(des/A.length*100):0}%`,'bad');
   // lista suspensa
   const jump=$('#rem-jump');
   if(jump.options.length<=1){
     jump.innerHTML='<option value="">Selecione um aluno…</option>'+SERIES_2026.map(s=>`<optgroup label="${s} (2026)">`+A.filter(a=>a.serie_2026===s).map(a=>`<option value="${a.id}">${esc(a.nome)} — ${a.matricula}</option>`).join('')+'</optgroup>').join('');
   }
   const fs=$('#rem-serie').value, fsit=$('#rem-sit').value, q=norm($('#rem-q').value);
-  const rows=A.filter(a=>(!fs||a.serie_2026===fs)&&(!q||norm(a.nome).includes(q)||a.matricula.includes(q))&&(!fsit||sit(a)===fsit||(fsit==='Inadimplente'&&a.inadimplente)));
-  function sit(a){ return a.rematriculado?'Rematriculado':(a.inadimplente?'Inadimplente':'Aguardando'); }
+  const rows=A.filter(a=>(!fs||a.serie_2026===fs)&&(!q||norm(a.nome).includes(q)||a.matricula.includes(q))&&(!fsit||sit(a)===fsit||(fsit==='Inadimplente'&&a.inadimplente&&!a.desistente)));
+  function sit(a){ return a.desistente?'Desistente':(a.rematriculado?'Rematriculado':(a.inadimplente?'Inadimplente':'Aguardando')); }
   let html='', last='';
   for(const a of rows){
-    if(a.serie_2026!==last){ last=a.serie_2026; html+=`<tr class="grp"><td colspan="10">${last} · 2026 → ${SERIES[serieIdx(last)+1]} · 2027 <span class="muted">(${A.filter(x=>x.serie_2026===last).length} alunos)</span></td></tr>`; }
-    const badges = (a.rematriculado?'<span class="badge b-ok">Rematriculado</span>':'')+(a.inadimplente?'<span class="badge b-bad">Inadimplente</span>':'')+(!a.rematriculado&&!a.inadimplente?'<span class="badge b-wait">Aguardando</span>':'');
-    html+=`<tr data-id="${a.id}">
+    if(a.serie_2026!==last){ last=a.serie_2026; html+=`<tr class="grp"><td colspan="11">${last} · 2026 → ${SERIES[serieIdx(last)+1]} · 2027 <span class="muted">(${A.filter(x=>x.serie_2026===last).length} alunos)</span></td></tr>`; }
+    const badges = a.desistente ? '<span class="badge" style="background:#7A2219;color:#fff">Desistente</span>' : (a.rematriculado?'<span class="badge b-ok">Rematriculado</span>':'')+(a.inadimplente?'<span class="badge b-bad">Inadimplente</span>':'')+(!a.rematriculado&&!a.inadimplente?'<span class="badge b-wait">Aguardando</span>':'');
+    html+=`<tr data-id="${a.id}" class="${a.desistente?'des':''}">
       <td class="num muted">${a.matricula}</td><td class="name">${esc(a.nome)}</td><td>${a.serie_2026}</td><td>${a.serie_2027}</td>
-      <td class="c">${ck('rematriculado',a.rematriculado,'ok','Marcar como rematriculado')}</td>
+      <td class="c">${a.desistente?'<span class="muted" title="Aluno desistente">—</span>':ck('rematriculado',a.rematriculado,'ok','Marcar como rematriculado')}</td>
       <td class="dt">${a.rematriculado_em?fmtDT(a.rematriculado_em)+(a.rematriculado_por?` <span class="muted">· ${esc(a.rematriculado_por)}</span>`:''):'<span class="muted">—</span>'}</td>
       <td class="c">${ck('inadimplente',a.inadimplente,'bad','Marcar como inadimplente (vai para Renegociação)')}</td>
+      <td class="c">${ck('desistente',a.desistente,'des','Marcar como desistente (exige justificativa)')}</td>
       <td><div class="bstack">${badges}</div></td>
-      <td>${txt('observacao',a.observacao,'anotações…')}</td>
+      <td>${a.desistente?`<div class="just"><b>Desistência:</b> ${esc(a.justificativa_desistencia||'')}${a.desistente_em?` <span class="muted">· ${fmtDT(a.desistente_em)}${a.desistente_por?' · '+esc(a.desistente_por):''}</span>`:''}</div>`:''}${txt('observacao',a.observacao,'anotações…')}</td>
       <td class="muted">${esc(a.atualizado_por||'')}</td></tr>`;
   }
-  $('#rem-tbl tbody').innerHTML = html || `<tr><td colspan="10" class="empty">Nenhum aluno encontrado.</td></tr>`;
+  $('#rem-tbl tbody').innerHTML = html || `<tr><td colspan="11" class="empty">Nenhum aluno encontrado.</td></tr>`;
 }
 
 // ---------- Novas matrículas ----------
@@ -698,6 +718,19 @@ function renderReneg(){
 }
 
 
+// ---------- Desistência ----------
+function openDesistencia(id){
+  const a=S.alunos.find(x=>String(x.id)===String(id)); if(!a) return;
+  const f=$('#desForm'); f.reset(); f.dataset.id=id; $('#desNome').textContent=a.nome+' · '+a.serie_2026+' de 2026'; $('#mDes').classList.add('on'); f.just.focus();
+}
+$('#desCancel').addEventListener('click', ()=>{ $('#mDes').classList.remove('on'); render(); });
+$('#desForm').addEventListener('submit', async e=>{
+  e.preventDefault(); const f=e.target; const just=f.just.value.trim();
+  if(just.length<5){ toast('Escreva a justificativa da desistência.', true); return; }
+  $('#mDes').classList.remove('on');
+  await upd('crm_alunos_2026', 'id', f.dataset.id, {desistente:true, desistente_por:S.user.nome, justificativa_desistencia:just});
+});
+
 // ===================== RELATÓRIO (PDF) =====================
 const UNIDADE_NOME = document.querySelector('.top .ttl small').textContent.split('·')[0].trim();
 const pct = (a,b)=> b? Math.round(a/b*100) : 0;
@@ -714,13 +747,13 @@ function relatorioHTML(){
   const remRows = SERIES.filter(s=>A.some(a=>a.serie_2027===s)).map(s=>{
     const g=A.filter(a=>a.serie_2027===s); const tot=g.length;
     const rem=g.filter(a=>a.rematriculado).length, inad=g.filter(a=>a.inadimplente).length;
-    const inadNR=g.filter(a=>a.inadimplente&&!a.rematriculado).length, pend=g.filter(a=>!a.rematriculado&&!a.inadimplente).length;
-    return {s, tot, rem, inad, inadNR, pend};
+    const des=g.filter(a=>a.desistente).length, inadNR=g.filter(a=>a.inadimplente&&!a.rematriculado&&!a.desistente).length, pend=g.filter(a=>!a.rematriculado&&!a.inadimplente&&!a.desistente).length;
+    return {s, tot, rem, inad, inadNR, pend, des};
   });
-  const totA=A.length, totRem=A.filter(a=>a.rematriculado).length, totInad=A.filter(a=>a.inadimplente).length, totInadNR=A.filter(a=>a.inadimplente&&!a.rematriculado).length, totPend=A.filter(a=>!a.rematriculado&&!a.inadimplente).length;
+  const totA=A.length, totRem=A.filter(a=>a.rematriculado).length, totInad=A.filter(a=>a.inadimplente).length, totDes=A.filter(a=>a.desistente).length, totInadNR=A.filter(a=>a.inadimplente&&!a.rematriculado&&!a.desistente).length, totPend=A.filter(a=>!a.rematriculado&&!a.inadimplente&&!a.desistente).length;
   const remRow = r => `<div class="row"><div><b>${r.s} · 2027</b><small>${r.tot} alunos ${origem2026(r.s)} de 2026</small></div>
-    <div class="pb">${segs([['ok',r.rem],['bad',r.inadNR],['wait',r.pend]],r.tot)}<span class="pct">${pct(r.rem,r.tot)}%</span></div>
-    <div class="kv"><em class="ok">${r.rem} rematriculados</em><em class="wait">${r.pend} pendentes</em><br><em class="bad">${r.inadNR} inadimplentes sem rematrícula</em><br>Índice de inadimplência: <b>${pct(r.inad,r.tot)}%</b> (${r.inad} de ${r.tot})</div></div>`;
+    <div class="pb">${segs([['ok',r.rem],['bad',r.inadNR],['wait',r.pend],['g',r.des]],r.tot)}<span class="pct">${pct(r.rem,r.tot)}%</span></div>
+    <div class="kv"><em class="ok">${r.rem} rematriculados</em><em class="wait">${r.pend} pendentes</em><br><em class="bad">${r.inadNR} inadimplentes sem rematrícula</em><em class="g">${r.des} desistentes</em><br>Índice de inadimplência: <b>${pct(r.inad,r.tot)}%</b> (${r.inad} de ${r.tot}) · Desistência: <b>${pct(r.des,r.tot)}%</b></div></div>`;
   // --- novas matrículas por turma de interesse ---
   const leadRows = SERIES.map(s=>{ const g=L.filter(l=>l.turma_interesse===s); const c=st=>g.filter(l=>l.status===st).length;
     return {s, n:g.length, ef:c('Matrícula efetivada'), fe:c('Fechando'), an:c('Em análise'), it:c('Interesse'), de:c('Desistente')}; }).filter(r=>r.n>0);
@@ -742,12 +775,12 @@ function relatorioHTML(){
   <div class="hd"><img src="${LOGO}" alt="Habilis"><div><h1>Relatório de Matrículas 2027</h1><small>${esc(UNIDADE_NOME)} · Rematrículas, novas matrículas e lotação</small></div></div>
   <div class="stripe3"><i></i><i></i><i></i></div>
   <div class="gen"><div>Gerado em ${gen}</div><span>por ${esc(S.user.nome)} · dados ao vivo do CRM</span></div>
-  <div class="tiles">${tile(totA,'Alunos atuais (2026)','g')}${tile(totRem+' · '+pct(totRem,totA)+'%','Rematriculados','ok')}${tile(totPend,'Pendentes (sem inadimplência)','wait')}${tile(totInad+' · '+pct(totInad,totA)+'%','Inadimplentes · índice','bad')}</div>
+  <div class="tiles">${tile(totA,'Alunos atuais (2026)','g')}${tile(totRem+' · '+pct(totRem,totA)+'%','Rematriculados','ok')}${tile(totPend,'Pendentes (sem inadimplência)','wait')}${tile(totInad+' · '+pct(totInad,totA)+'%','Inadimplentes · índice','bad')}${tile(totDes+' · '+pct(totDes,totA)+'%','Desistentes · índice','g')}</div>
   <div class="tiles">${tile(lt.n,'Leads registrados','m')}${tile(lt.ef,'Matrículas efetivadas','ok')}${tile(totConf,'Confirmados para 2027','t')}${tile(totVagas===null?'—':Math.max(totVagas-totConf,0),'Vagas restantes (total)','g')}</div>
   <div class="sec"><h2>1. Rematrículas por turma de 2027</h2>
-  <div class="legend"><span class="badge b-ok">Rematriculado</span><span class="badge b-bad">Inadimplente sem rematrícula</span><span class="badge b-wait">Pendente</span></div>
-  <div class="row total"><div><b>Todas as turmas</b><small>${totA} alunos</small></div><div class="pb">${segs([['ok',totRem],['bad',totInadNR],['wait',totPend]],totA)}<span class="pct">${pct(totRem,totA)}%</span></div>
-    <div class="kv"><em class="ok">${totRem} rematriculados</em><em class="wait">${totPend} pendentes</em><br><em class="bad">${totInadNR} inadimplentes sem rematrícula</em><br>Índice de inadimplência: <b>${pct(totInad,totA)}%</b> (${totInad} de ${totA})</div></div>
+  <div class="legend"><span class="badge b-ok">Rematriculado</span><span class="badge b-bad">Inadimplente sem rematrícula</span><span class="badge b-wait">Pendente</span><span class="badge b-g">Desistente</span></div>
+  <div class="row total"><div><b>Todas as turmas</b><small>${totA} alunos</small></div><div class="pb">${segs([['ok',totRem],['bad',totInadNR],['wait',totPend],['g',totDes]],totA)}<span class="pct">${pct(totRem,totA)}%</span></div>
+    <div class="kv"><em class="ok">${totRem} rematriculados</em><em class="wait">${totPend} pendentes</em><br><em class="bad">${totInadNR} inadimplentes sem rematrícula</em><em class="g">${totDes} desistentes</em><br>Índice de inadimplência: <b>${pct(totInad,totA)}%</b> (${totInad} de ${totA}) · Desistência: <b>${pct(totDes,totA)}%</b></div></div>
   ${remRows.map(remRow).join('')}</div>
   <div class="sec"><h2 class="m">2. Novas matrículas (leads) por turma de interesse</h2>
   <div class="legend"><span class="badge b-ok">Matrícula efetivada</span><span class="badge b-t">Fechando</span><span class="badge b-wait">Em análise</span><span class="badge b-m">Interesse</span><span class="badge b-g">Desistente</span></div>
