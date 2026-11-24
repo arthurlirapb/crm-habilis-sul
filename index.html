@@ -39,6 +39,7 @@ label.f span{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:
 .inp{border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;width:100%}
 .inp:focus{outline:none;border-color:var(--turquesa);box-shadow:0 0 0 3px var(--turquesa-bg)}
 .btn{border:none;border-radius:8px;padding:10px 16px;font-weight:700;font-family:var(--font-d);background:var(--line2);color:var(--grafite);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn[hidden]{display:none}
 .btn:hover{filter:brightness(.97)}
 .btn:focus-visible{outline:3px solid var(--turquesa-bg)}
 .btn.p{background:var(--amarelo);color:var(--grafite)}
@@ -233,6 +234,7 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
       <div class="user">
         <span class="who"><b id="uini"></b><span id="uname"></span></span>
         <button class="btn t sm" id="btnRel">Gerar Relatório</button>
+        <button class="btn g sm" id="btnAdm" hidden>Redefinir senha</button>
         <button class="btn g sm" id="btnPwd">Trocar senha</button>
         <button class="btn g sm" id="btnOut">Sair</button>
       </div>
@@ -353,6 +355,22 @@ select.st.r-quitado{background:var(--verde-bg);color:#1F7A44;border-color:var(--
   </form>
 </div>
 
+<!-- modal redefinir senha de outro usuário (somente administrador) -->
+<div class="modal" id="mAdm">
+  <form class="box" id="admForm">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="body">
+      <h2>Redefinir senha de um usuário</h2>
+      <p class="muted" style="margin:0;font-size:12px">Use quando alguém da equipe esquecer a senha. A pessoa entra com a senha nova e pode trocá-la depois em "Trocar senha".</p>
+      <label class="f"><span>Usuário</span><select class="inp" name="login" required><option value="">Carregando…</option></select></label>
+      <label class="f"><span>Nova senha (mín. 6 caracteres)</span><input class="inp" name="p1" type="password" minlength="6" required autocomplete="new-password"></label>
+      <label class="f"><span>Repetir nova senha</span><input class="inp" name="p2" type="password" minlength="6" required autocomplete="new-password"></label>
+      <div class="err" id="aerr" hidden></div>
+      <div class="row-end"><button type="button" class="btn g" id="admCancel">Cancelar</button><button class="btn t" type="submit" id="admSalvar">Redefinir senha</button></div>
+    </div>
+  </form>
+</div>
+
 <!-- modal relatório -->
 <div class="modal" id="mRel">
   <div class="box wide">
@@ -449,6 +467,7 @@ function enter(user){
   S.user = { nome: meta.nome || (login.charAt(0).toUpperCase()+login.slice(1)), login, id:user.id };
   $('#uname').textContent = S.user.nome; $('#uini').textContent = S.user.nome.charAt(0).toUpperCase();
   $('#login').style.display='none'; $('#app').style.display='block';
+  $('#btnAdm').hidden = (login !== 'arthur'); // botão de administrador só aparece para o Arthur
   if(!S.built){ S.built=true; buildStatic(); subscribe(); setInterval(loadAll, 60000); }
   loadAll();
 }
@@ -473,6 +492,27 @@ $('#pwdForm').addEventListener('submit', async e=>{
   const {error} = await sb.auth.updateUser({password:f.p1.value});
   if(error){ $('#perr').textContent='Não foi possível trocar: '+error.message; $('#perr').hidden=false; return; }
   $('#mPwd').classList.remove('on'); toast('Senha alterada');
+});
+
+// redefinir senha de outro usuário (somente administrador; a checagem real é feita no banco)
+$('#btnAdm').addEventListener('click', async ()=>{
+  const f=$('#admForm'); f.reset(); $('#aerr').hidden=true; $('#mAdm').classList.add('on');
+  const sel=f.login; sel.innerHTML='<option value="">Carregando…</option>';
+  const {data, error} = await sb.rpc('crm_admin_listar_usuarios');
+  if(error){ sel.innerHTML='<option value="">—</option>'; $('#aerr').textContent='Não foi possível listar os usuários: '+error.message; $('#aerr').hidden=false; return; }
+  sel.innerHTML='<option value="">Escolha o usuário…</option>' + data.filter(u=>u.login!==S.user.login)
+    .map(u=>`<option value="${esc(u.login)}">${esc(u.nome)} (${esc(u.login)})</option>`).join('');
+});
+$('#admCancel').addEventListener('click', ()=>$('#mAdm').classList.remove('on'));
+$('#admForm').addEventListener('submit', async e=>{
+  e.preventDefault(); const f=e.target; $('#aerr').hidden=true;
+  if(f.p1.value!==f.p2.value){ $('#aerr').textContent='As senhas não conferem.'; $('#aerr').hidden=false; return; }
+  const nome = f.login.selectedOptions[0]?.textContent || f.login.value;
+  $('#admSalvar').disabled=true;
+  const {error} = await sb.rpc('crm_admin_redefinir_senha', {p_login:f.login.value, p_senha:f.p1.value});
+  $('#admSalvar').disabled=false;
+  if(error){ $('#aerr').textContent='Não foi possível redefinir: '+error.message; $('#aerr').hidden=false; return; }
+  $('#mAdm').classList.remove('on'); toast('Senha redefinida: '+nome);
 });
 
 // ===================== DADOS =====================
